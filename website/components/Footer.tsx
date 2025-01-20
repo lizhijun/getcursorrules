@@ -35,7 +35,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://cursor.sh"
+                  href="https://cursor.ai"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-base text-gray-500 hover:text-gray-900"
@@ -45,7 +45,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://github.com/awesome-cursorrules/awesome-cursorrules"
+                  href="https://github.com/awesome-cursorrules"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-base text-gray-500 hover:text-gray-900"
@@ -75,7 +75,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://twitter.com/cursorrules"
+                  href="https://twitter.com/zhijunli"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center text-base text-gray-500 hover:text-gray-900"
@@ -86,7 +86,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="mailto:contact@getcursorrules.com"
+                  href="mailto:hi@jiehuo.ai"
                   className="flex items-center text-base text-gray-500 hover:text-gray-900"
                 >
                   <FiMail className="h-5 w-5 mr-2" />
