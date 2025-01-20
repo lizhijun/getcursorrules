@@ -35,7 +35,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://cursor.ai"
+                  href="https://cursor.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-base text-gray-500 hover:text-gray-900"
