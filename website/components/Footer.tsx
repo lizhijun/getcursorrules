@@ -9,7 +9,7 @@ export function Footer() {
           {/* 关于部分 */}
           <div className="col-span-1 md:col-span-2">
             <h3 className="text-sm font-semibold text-gray-600 tracking-wider uppercase">
-              About Awesome CursorRules
+              About Get CursorRules
             </h3>
             <p className="mt-4 text-base text-gray-500">
               A curated collection of .cursorrules files for enhancing your Cursor AI development experience. 
@@ -45,7 +45,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://github.com/awesome-cursorrules"
+                  href="https://github.com/PatrickJS/awesome-cursorrules"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-base text-gray-500 hover:text-gray-900"
@@ -64,7 +64,7 @@ export function Footer() {
             <ul className="mt-4 space-y-4">
               <li>
                 <a
-                  href="https://github.com/awesome-cursorrules"
+                  href="https://github.com/PatrickJS/awesome-cursorrules"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center text-base text-gray-500 hover:text-gray-900"
@@ -102,7 +102,7 @@ export function Footer() {
           <p className="text-base text-gray-500 text-center">
             Made with <FiHeart className="inline-block h-4 w-4 text-red-500" /> by the{' '}
             <a
-              href="https://github.com/awesome-cursorrules"
+              href="https://github.com/PatrickJS/awesome-cursorrules"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-500 hover:text-blue-600"
