@@ -1,3 +1,9 @@
+/**
+ * Categories and rules for Cursor AI
+ * This file contains all the categories and their associated rules
+ * Each rule has a name, path, and optional description
+ */
+
 import fs from 'fs/promises';
 import path from 'path';
 import matter from 'gray-matter';
@@ -5,13 +11,41 @@ import { Category, Rule } from './types';
 
 const RULES_DIR = path.join(process.cwd(), 'rules');
 
+// Helper function to create a rule with proper typing
+const createRule = (name: string, path: string, description?: string): Rule => ({
+  name,
+  path,
+  description
+});
+
+// Helper function to read rule description from README.md
+async function getRuleDescription(rulePath: string): Promise<string | undefined> {
+  try {
+    const readmePath = path.join(RULES_DIR, rulePath, 'README.md');
+    const content = await fs.readFile(readmePath, 'utf-8');
+    const { data } = matter(content);
+    return data.description;
+  } catch {
+    return undefined;
+  }
+}
+
+// Categories data
 export async function getCategories(): Promise<Category[]> {
   return [
     {
       name: "Frontend Frameworks and Libraries",
       rules: [
-        { name: "Angular (Novo Elements)", path: "angular-novo-elements-cursorrules-prompt-file" },
-        { name: "Angular (TypeScript)", path: "angular-typescript-cursorrules-prompt-file" },
+        createRule(
+          "Angular (Novo Elements)", 
+          "angular-novo-elements-cursorrules-prompt-file",
+          await getRuleDescription("angular-novo-elements-cursorrules-prompt-file")
+        ),
+        createRule(
+          "Angular (TypeScript)", 
+          "angular-typescript-cursorrules-prompt-file",
+          await getRuleDescription("angular-typescript-cursorrules-prompt-file")
+        ),
         { name: "Astro (TypeScript)", path: "astro-typescript-cursorrules-prompt-file" },
         { name: "Cursor AI (React, TypeScript, shadcn/ui)", path: "cursor-ai-react-typescript-shadcn-ui-cursorrules-p" },
         { name: "Next.js 15 (React 19, Vercel AI, Tailwind)", path: "nextjs15-react19-vercelai-tailwind-cursorrules-prompt-file" },
@@ -189,73 +223,18 @@ export async function getCategories(): Promise<Category[]> {
   ];
 }
 
-async function getAllRules(): Promise<Rule[]> {
-  try {
-    const entries = await fs.readdir(RULES_DIR, { withFileTypes: true });
-    const rules: Rule[] = [];
-
-    for (const entry of entries) {
-      if (entry.isDirectory()) {
-        const rulePath = path.join(RULES_DIR, entry.name);
-        const readmePath = path.join(rulePath, 'README.md');
-        const cursorrulePath = path.join(rulePath, '.cursorrules');
-        
-        try {
-          // 尝试读取 README.md
-          let name = entry.name;
-          let description = '';
-          let category = 'Other';
-
-          try {
-            const readmeContent = await fs.readFile(readmePath, 'utf-8');
-            const { data } = matter(readmeContent);
-            if (data.title) name = data.title;
-            if (data.description) description = data.description;
-            if (data.category) category = data.category;
-          } catch (readmeError) {
-            // 如果没有 README.md 或读取失败，尝试从目录名称推断类别
-            const nameParts = entry.name.split('-');
-            if (nameParts.length > 0) {
-              // 根据目录名称的第一部分来推断类别
-              const firstPart = nameParts[0].toLowerCase();
-              if (firstPart === 'react' || firstPart === 'vue' || firstPart === 'angular') {
-                category = 'Frontend Frameworks and Libraries';
-              } else if (firstPart === 'node' || firstPart === 'python' || firstPart === 'java') {
-                category = 'Backend and Full-Stack';
-              } else if (firstPart === 'flutter' || firstPart === 'react-native') {
-                category = 'Mobile Development';
-              }
-              // 其他类别的推断可以继续添加...
-            }
-          }
-
-          // 检查 .cursorrules 文件是否存在
-          await fs.access(cursorrulePath);
-          
-          // 格式化显示名称
-          name = name
-            .replace(/-cursorrules-prompt-file$/, '')
-            .replace(/-/g, ' ')
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-
-          rules.push({
-            name,
-            path: entry.name,
-            description,
-            category
-          });
-        } catch (error) {
-          console.warn(`Skipping ${entry.name}: ${error.message}`);
-        }
-      }
-    }
-
-    // 按名称排序
-    return rules.sort((a, b) => a.name.localeCompare(b.name));
-  } catch (error) {
-    console.error('Failed to read rules directory:', error);
-    return [];
+// Helper function to get a specific rule by path
+export async function getRuleByPath(path: string): Promise<Rule | undefined> {
+  const categories = await getCategories();
+  for (const category of categories) {
+    const rule = category.rules.find(r => r.path === path);
+    if (rule) return rule;
   }
+  return undefined;
+}
+
+// Helper function to get a specific category by name
+export async function getCategoryByName(name: string): Promise<Category | undefined> {
+  const categories = await getCategories();
+  return categories.find(c => c.name === name);
 } 
