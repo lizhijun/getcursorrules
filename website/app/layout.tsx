@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
+import { Clarity } from "@/components/Clarity";
 
 export const metadata: Metadata = {
   title: "Awesome CursorRules",
@@ -18,6 +19,7 @@ export default function RootLayout({
       <body>
         {children}
         <Analytics />
+        <Clarity />
       </body>
     </html>
   );
