@@ -7,220 +7,403 @@
 import fs from 'fs/promises';
 import path from 'path';
 import matter from 'gray-matter';
-import { Category, Rule } from './types';
+import { Category, Rule, SEOMetadata } from './types';
 
 const RULES_DIR = path.join(process.cwd(), 'rules');
 
-// Helper function to create a rule with proper typing
-const createRule = (name: string, path: string, description?: string): Rule => ({
+// Helper function to create a rule with proper typing and SEO metadata
+const createRule = (
+  name: string, 
+  path: string, 
+  options: Partial<Rule> = {}
+): Rule => ({
   name,
   path,
-  description
+  ...options
 });
 
-// Helper function to read rule description from README.md
-async function getRuleDescription(rulePath: string): Promise<string | undefined> {
+// Helper function to read rule metadata from README.md
+async function getRuleMetadata(rulePath: string): Promise<Partial<Rule>> {
   try {
     const readmePath = path.join(RULES_DIR, rulePath, 'README.md');
     const content = await fs.readFile(readmePath, 'utf-8');
     const { data } = matter(content);
-    return data.description;
+    return {
+      description: data.description,
+      keywords: data.keywords,
+      author: data.author,
+      lastUpdated: data.lastUpdated,
+      githubUrl: data.githubUrl
+    };
   } catch {
-    return undefined;
+    return {};
   }
 }
 
-// Categories data
+// Categories data with enhanced SEO descriptions
 export async function getCategories(): Promise<Category[]> {
   return [
     {
       name: "Frontend Frameworks and Libraries",
+      description: "A collection of Cursor AI rules for popular frontend frameworks including React, Vue, Angular, and more. These rules help maintain consistent code quality and best practices in frontend development.",
       rules: [
         createRule(
           "Angular (Novo Elements)", 
           "angular-novo-elements-cursorrules-prompt-file",
-          await getRuleDescription("angular-novo-elements-cursorrules-prompt-file")
+          await getRuleMetadata("angular-novo-elements-cursorrules-prompt-file")
         ),
         createRule(
           "Angular (TypeScript)", 
           "angular-typescript-cursorrules-prompt-file",
-          await getRuleDescription("angular-typescript-cursorrules-prompt-file")
+          await getRuleMetadata("angular-typescript-cursorrules-prompt-file")
         ),
-        { name: "Astro (TypeScript)", path: "astro-typescript-cursorrules-prompt-file" },
-        { name: "Cursor AI (React, TypeScript, shadcn/ui)", path: "cursor-ai-react-typescript-shadcn-ui-cursorrules-p" },
-        { name: "Next.js 15 (React 19, Vercel AI, Tailwind)", path: "nextjs15-react19-vercelai-tailwind-cursorrules-prompt-file" },
-        { name: "Next.js 14 (Tailwind, SEO)", path: "cursorrules-cursor-ai-nextjs-14-tailwind-seo-setup" },
-        { name: "Next.js (React, Tailwind)", path: "nextjs-react-tailwind-cursorrules-prompt-file" },
-        { name: "Next.js (React, TypeScript)", path: "nextjs-react-typescript-cursorrules-prompt-file" },
-        { name: "Next.js (SEO Development)", path: "nextjs-seo-dev-cursorrules-prompt-file" },
-        { name: "Next.js (Supabase Todo App)", path: "nextjs-supabase-todo-app-cursorrules-prompt-file" },
-        { name: "Next.js (Tailwind, TypeScript)", path: "nextjs-tailwind-typescript-apps-cursorrules-prompt" },
-        { name: "Next.js (TypeScript App)", path: "nextjs-typescript-app-cursorrules-prompt-file" },
-        { name: "Next.js (TypeScript)", path: "nextjs-typescript-cursorrules-prompt-file" },
-        { name: "Next.js (TypeScript, Tailwind)", path: "nextjs-typescript-tailwind-cursorrules-prompt-file" },
-        { name: "Next.js (Vercel, Supabase)", path: "nextjs-vercel-supabase-cursorrules-prompt-file" },
-        { name: "Next.js (Vercel, TypeScript)", path: "nextjs-vercel-typescript-cursorrules-prompt-file" },
-        { name: "Next.js (App Router)", path: "nextjs-app-router-cursorrules-prompt-file" },
-        { name: "Next.js (Material UI, Tailwind CSS)", path: "nextjs-material-ui-tailwind-css-cursorrules-prompt" },
-        { name: "Qwik (Basic Setup with TypeScript and Vite)", path: "qwik-basic-cursorrules-prompt-file" },
-        { name: "Qwik (with Tailwind CSS)", path: "qwik-tailwind-cursorrules-prompt-file" },
-        { name: "React Components Creation", path: "react-components-creation-cursorrules-prompt-file" },
-        { name: "React (Next.js UI Development)", path: "react-nextjs-ui-development-cursorrules-prompt-fil" },
-        { name: "React (TypeScript, Next.js, Node.js)", path: "react-typescript-nextjs-nodejs-cursorrules-prompt-" },
-        { name: "React (TypeScript, Symfony)", path: "react-typescript-symfony-cursorrules-prompt-file" },
-        { name: "Solid.js (Basic Setup)", path: "solidjs-basic-cursorrules-prompt-file" },
-        { name: "Solid.js (TypeScript)", path: "solidjs-typescript-cursorrules-prompt-file" },
-        { name: "Solid.js (Tailwind CSS)", path: "solidjs-tailwind-cursorrules-prompt-file" },
-        { name: "Svelte 5 vs Svelte 4", path: "svelte-5-vs-svelte-4-cursorrules-prompt-file" },
-        { name: "SvelteKit (RESTful API, Tailwind CSS)", path: "sveltekit-restful-api-tailwind-css-cursorrules-pro" },
-        { name: "SvelteKit (Tailwind CSS, TypeScript)", path: "sveltekit-tailwindcss-typescript-cursorrules-promp" },
-        { name: "SvelteKit (TypeScript Guide)", path: "sveltekit-typescript-guide-cursorrules-prompt-file" },
-        { name: "Vue 3 (Nuxt 3 Development)", path: "vue-3-nuxt-3-development-cursorrules-prompt-file" },
-        { name: "Vue 3 (Nuxt 3, TypeScript)", path: "vue-3-nuxt-3-typescript-cursorrules-prompt-file" },
-        { name: "Vue 3 (Composition API)", path: "vue3-composition-api-cursorrules-prompt-file" }
+        createRule("Astro (TypeScript)", "astro-typescript-cursorrules-prompt-file",
+          await getRuleMetadata("astro-typescript-cursorrules-prompt-file")),
+        createRule("Cursor AI (React, TypeScript, shadcn/ui)", "cursor-ai-react-typescript-shadcn-ui-cursorrules-p",
+          await getRuleMetadata("cursor-ai-react-typescript-shadcn-ui-cursorrules-p")),
+        createRule("Next.js 15 (React 19, Vercel AI, Tailwind)", "nextjs15-react19-vercelai-tailwind-cursorrules-prompt-file",
+          await getRuleMetadata("nextjs15-react19-vercelai-tailwind-cursorrules-prompt-file")),
+        createRule("Next.js 14 (Tailwind, SEO)", "cursorrules-cursor-ai-nextjs-14-tailwind-seo-setup",
+          await getRuleMetadata("cursorrules-cursor-ai-nextjs-14-tailwind-seo-setup")),
+        createRule("Next.js (React, Tailwind)", "nextjs-react-tailwind-cursorrules-prompt-file",
+          await getRuleMetadata("nextjs-react-tailwind-cursorrules-prompt-file")),
+        createRule("Next.js (React, TypeScript)", "nextjs-react-typescript-cursorrules-prompt-file",
+          await getRuleMetadata("nextjs-react-typescript-cursorrules-prompt-file")),
+        createRule("Next.js (SEO Development)", "nextjs-seo-dev-cursorrules-prompt-file",
+          await getRuleMetadata("nextjs-seo-dev-cursorrules-prompt-file")),
+        createRule("Next.js (Supabase Todo App)", "nextjs-supabase-todo-app-cursorrules-prompt-file",
+          await getRuleMetadata("nextjs-supabase-todo-app-cursorrules-prompt-file")),
+        createRule("Next.js (Tailwind, TypeScript)", "nextjs-tailwind-typescript-apps-cursorrules-prompt",
+          await getRuleMetadata("nextjs-tailwind-typescript-apps-cursorrules-prompt")),
+        createRule("Next.js (TypeScript App)", "nextjs-typescript-app-cursorrules-prompt-file",
+          await getRuleMetadata("nextjs-typescript-app-cursorrules-prompt-file")),
+        createRule("Next.js (TypeScript)", "nextjs-typescript-cursorrules-prompt-file",
+          await getRuleMetadata("nextjs-typescript-cursorrules-prompt-file")),
+        createRule("Next.js (TypeScript, Tailwind)", "nextjs-typescript-tailwind-cursorrules-prompt-file",
+          await getRuleMetadata("nextjs-typescript-tailwind-cursorrules-prompt-file")),
+        createRule("Next.js (Vercel, Supabase)", "nextjs-vercel-supabase-cursorrules-prompt-file",
+          await getRuleMetadata("nextjs-vercel-supabase-cursorrules-prompt-file")),
+        createRule("Next.js (Vercel, TypeScript)", "nextjs-vercel-typescript-cursorrules-prompt-file",
+          await getRuleMetadata("nextjs-vercel-typescript-cursorrules-prompt-file")),
+        createRule("Next.js (App Router)", "nextjs-app-router-cursorrules-prompt-file",
+          await getRuleMetadata("nextjs-app-router-cursorrules-prompt-file")),
+        createRule("Next.js (Material UI, Tailwind CSS)", "nextjs-material-ui-tailwind-css-cursorrules-prompt",
+          await getRuleMetadata("nextjs-material-ui-tailwind-css-cursorrules-prompt")),
+        createRule("Qwik (Basic Setup with TypeScript and Vite)", "qwik-basic-cursorrules-prompt-file",
+          await getRuleMetadata("qwik-basic-cursorrules-prompt-file")),
+        createRule("Qwik (with Tailwind CSS)", "qwik-tailwind-cursorrules-prompt-file",
+          await getRuleMetadata("qwik-tailwind-cursorrules-prompt-file")),
+        createRule("React Components Creation", "react-components-creation-cursorrules-prompt-file",
+          await getRuleMetadata("react-components-creation-cursorrules-prompt-file")),
+        createRule("React (Next.js UI Development)", "react-nextjs-ui-development-cursorrules-prompt-fil",
+          await getRuleMetadata("react-nextjs-ui-development-cursorrules-prompt-fil")),
+        createRule("React (TypeScript, Next.js, Node.js)", "react-typescript-nextjs-nodejs-cursorrules-prompt-",
+          await getRuleMetadata("react-typescript-nextjs-nodejs-cursorrules-prompt-")),
+        createRule("React (TypeScript, Symfony)", "react-typescript-symfony-cursorrules-prompt-file",
+          await getRuleMetadata("react-typescript-symfony-cursorrules-prompt-file")),
+        createRule("Solid.js (Basic Setup)", "solidjs-basic-cursorrules-prompt-file",
+          await getRuleMetadata("solidjs-basic-cursorrules-prompt-file")),
+        createRule("Solid.js (TypeScript)", "solidjs-typescript-cursorrules-prompt-file",
+          await getRuleMetadata("solidjs-typescript-cursorrules-prompt-file")),
+        createRule("Solid.js (Tailwind CSS)", "solidjs-tailwind-cursorrules-prompt-file",
+          await getRuleMetadata("solidjs-tailwind-cursorrules-prompt-file")),
+        createRule("Svelte 5 vs Svelte 4", "svelte-5-vs-svelte-4-cursorrules-prompt-file",
+          await getRuleMetadata("svelte-5-vs-svelte-4-cursorrules-prompt-file")),
+        createRule("SvelteKit (RESTful API, Tailwind CSS)", "sveltekit-restful-api-tailwind-css-cursorrules-pro",
+          await getRuleMetadata("sveltekit-restful-api-tailwind-css-cursorrules-pro")),
+        createRule("SvelteKit (Tailwind CSS, TypeScript)", "sveltekit-tailwindcss-typescript-cursorrules-promp",
+          await getRuleMetadata("sveltekit-tailwindcss-typescript-cursorrules-promp")),
+        createRule("SvelteKit (TypeScript Guide)", "sveltekit-typescript-guide-cursorrules-prompt-file",
+          await getRuleMetadata("sveltekit-typescript-guide-cursorrules-prompt-file")),
+        createRule("Vue 3 (Nuxt 3 Development)", "vue-3-nuxt-3-development-cursorrules-prompt-file",
+          await getRuleMetadata("vue-3-nuxt-3-development-cursorrules-prompt-file")),
+        createRule("Vue 3 (Nuxt 3, TypeScript)", "vue-3-nuxt-3-typescript-cursorrules-prompt-file",
+          await getRuleMetadata("vue-3-nuxt-3-typescript-cursorrules-prompt-file")),
+        createRule("Vue 3 (Composition API)", "vue3-composition-api-cursorrules-prompt-file",
+          await getRuleMetadata("vue3-composition-api-cursorrules-prompt-file"))
       ]
     },
     {
       name: "Backend and Full-Stack",
+      description: "Comprehensive rules for backend development using Node.js, Python, Go, and other server-side technologies. Includes best practices for API development, database integration, and full-stack applications.",
       rules: [
-        { name: "Deno Integration", path: "deno-integration-techniques-cursorrules-prompt-fil" },
-        { name: "Elixir Engineer Guidelines", path: "elixir-engineer-guidelines-cursorrules-prompt-file" },
-        { name: "Elixir (Phoenix, Docker)", path: "elixir-phoenix-docker-setup-cursorrules-prompt-fil" },
-        { name: "ES Module (Node.js)", path: "es-module-nodejs-guidelines-cursorrules-prompt-fil" },
-        { name: "Go Backend Scalability", path: "go-backend-scalability-cursorrules-prompt-file" },
-        { name: "Go ServeMux REST API", path: "go-servemux-rest-api-cursorrules-prompt-file" },
-        { name: "Go (Basic Setup)", path: "htmx-go-basic-cursorrules-prompt-file" },
-        { name: "Go with Fiber", path: "htmx-go-fiber-cursorrules-prompt-file" },
-        { name: "HTMX (Basic Setup)", path: "htmx-basic-cursorrules-prompt-file" },
-        { name: "HTMX (Flask)", path: "htmx-flask-cursorrules-prompt-file" },
-        { name: "HTMX (Django)", path: "htmx-django-cursorrules-prompt-file" },
-        { name: "Java (Springboot, JPA)", path: "java-springboot-jpa-cursorrules-prompt-file" },
-        { name: "Knative (Istio, Typesense, GPU)", path: "knative-istio-typesense-gpu-cursorrules-prompt-fil" },
-        { name: "Laravel (PHP 8.3)", path: "laravel-php-83-cursorrules-prompt-file" },
-        { name: "Laravel (TALL Stack)", path: "laravel-tall-stack-best-practices-cursorrules-prom" },
-        { name: "Node.js (MongoDB)", path: "nodejs-mongodb-cursorrules-prompt-file-tutorial" },
-        { name: "Node.js (MongoDB, JWT, Express, React)", path: "nodejs-mongodb-jwt-express-react-cursorrules-promp" },
-        { name: "Python (FastAPI)", path: "py-fast-api" },
-        { name: "Python (FastAPI)", path: "cursorrules-file-cursor-ai-python-fastapi-api" },
-        { name: "Python 3.12 (FastAPI Best Practices)", path: "python-312-fastapi-best-practices-cursorrules-prom" },
-        { name: "Python (Django Best Practices)", path: "python-django-best-practices-cursorrules-prompt-fi" },
-        { name: "Python (FastAPI Best Practices)", path: "python-fastapi-best-practices-cursorrules-prompt-f" },
-        { name: "Python (FastAPI Scalable API)", path: "python-fastapi-scalable-api-cursorrules-prompt-fil" },
-        { name: "Python (Flask JSON Guide)", path: "python-flask-json-guide-cursorrules-prompt-file" },
-        { name: "TypeScript (NestJS Best Practices)", path: "typescript-nestjs-best-practices-cursorrules-promp" },
-        { name: "WordPress (PHP, Guzzle, Gutenberg)", path: "wordpress-php-guzzle-gutenberg-cursorrules-prompt-" },
-        { name: "WordPress (macOS)", path: "cursorrules-cursor-ai-wordpress-draft-macos-prompt" },
-        { name: "Python LLM & ML Workflow", path: "python-llm-ml-workflow-cursorrules-prompt-file" }
+        createRule("Deno Integration", "deno-integration-techniques-cursorrules-prompt-fil",
+          await getRuleMetadata("deno-integration-techniques-cursorrules-prompt-fil")),
+        createRule("Elixir Engineer Guidelines", "elixir-engineer-guidelines-cursorrules-prompt-file",
+          await getRuleMetadata("elixir-engineer-guidelines-cursorrules-prompt-file")),
+        createRule("Elixir (Phoenix, Docker)", "elixir-phoenix-docker-setup-cursorrules-prompt-fil",
+          await getRuleMetadata("elixir-phoenix-docker-setup-cursorrules-prompt-fil")),
+        createRule("ES Module (Node.js)", "es-module-nodejs-guidelines-cursorrules-prompt-fil",
+          await getRuleMetadata("es-module-nodejs-guidelines-cursorrules-prompt-fil")),
+        createRule("Go Backend Scalability", "go-backend-scalability-cursorrules-prompt-file",
+          await getRuleMetadata("go-backend-scalability-cursorrules-prompt-file")),
+        createRule("Go ServeMux REST API", "go-servemux-rest-api-cursorrules-prompt-file",
+          await getRuleMetadata("go-servemux-rest-api-cursorrules-prompt-file")),
+        createRule("Go (Basic Setup)", "htmx-go-basic-cursorrules-prompt-file",
+          await getRuleMetadata("htmx-go-basic-cursorrules-prompt-file")),
+        createRule("Go with Fiber", "htmx-go-fiber-cursorrules-prompt-file",
+          await getRuleMetadata("htmx-go-fiber-cursorrules-prompt-file")),
+        createRule("HTMX (Basic Setup)", "htmx-basic-cursorrules-prompt-file",
+          await getRuleMetadata("htmx-basic-cursorrules-prompt-file")),
+        createRule("HTMX (Flask)", "htmx-flask-cursorrules-prompt-file",
+          await getRuleMetadata("htmx-flask-cursorrules-prompt-file")),
+        createRule("HTMX (Django)", "htmx-django-cursorrules-prompt-file",
+          await getRuleMetadata("htmx-django-cursorrules-prompt-file")),
+        createRule("Java (Springboot, JPA)", "java-springboot-jpa-cursorrules-prompt-file",
+          await getRuleMetadata("java-springboot-jpa-cursorrules-prompt-file")),
+        createRule("Knative (Istio, Typesense, GPU)", "knative-istio-typesense-gpu-cursorrules-prompt-fil",
+          await getRuleMetadata("knative-istio-typesense-gpu-cursorrules-prompt-fil")),
+        createRule("Laravel (PHP 8.3)", "laravel-php-83-cursorrules-prompt-file",
+          await getRuleMetadata("laravel-php-83-cursorrules-prompt-file")),
+        createRule("Laravel (TALL Stack)", "laravel-tall-stack-best-practices-cursorrules-prom",
+          await getRuleMetadata("laravel-tall-stack-best-practices-cursorrules-prom")),
+        createRule("Node.js (MongoDB)", "nodejs-mongodb-cursorrules-prompt-file-tutorial",
+          await getRuleMetadata("nodejs-mongodb-cursorrules-prompt-file-tutorial")),
+        createRule("Node.js (MongoDB, JWT, Express, React)", "nodejs-mongodb-jwt-express-react-cursorrules-promp",
+          await getRuleMetadata("nodejs-mongodb-jwt-express-react-cursorrules-promp")),
+        createRule("Python (FastAPI)", "py-fast-api",
+          await getRuleMetadata("py-fast-api")),
+        createRule("Python (FastAPI)", "cursorrules-file-cursor-ai-python-fastapi-api",
+          await getRuleMetadata("cursorrules-file-cursor-ai-python-fastapi-api")),
+        createRule("Python 3.12 (FastAPI Best Practices)", "python-312-fastapi-best-practices-cursorrules-prom",
+          await getRuleMetadata("python-312-fastapi-best-practices-cursorrules-prom")),
+        createRule("Python (Django Best Practices)", "python-django-best-practices-cursorrules-prompt-fi",
+          await getRuleMetadata("python-django-best-practices-cursorrules-prompt-fi")),
+        createRule("Python (FastAPI Best Practices)", "python-fastapi-best-practices-cursorrules-prompt-f",
+          await getRuleMetadata("python-fastapi-best-practices-cursorrules-prompt-f")),
+        createRule("Python (FastAPI Scalable API)", "python-fastapi-scalable-api-cursorrules-prompt-fil",
+          await getRuleMetadata("python-fastapi-scalable-api-cursorrules-prompt-fil")),
+        createRule("Python (Flask JSON Guide)", "python-flask-json-guide-cursorrules-prompt-file",
+          await getRuleMetadata("python-flask-json-guide-cursorrules-prompt-file")),
+        createRule("TypeScript (NestJS Best Practices)", "typescript-nestjs-best-practices-cursorrules-promp",
+          await getRuleMetadata("typescript-nestjs-best-practices-cursorrules-promp")),
+        createRule("WordPress (PHP, Guzzle, Gutenberg)", "wordpress-php-guzzle-gutenberg-cursorrules-prompt-",
+          await getRuleMetadata("wordpress-php-guzzle-gutenberg-cursorrules-prompt-")),
+        createRule("WordPress (macOS)", "cursorrules-cursor-ai-wordpress-draft-macos-prompt",
+          await getRuleMetadata("cursorrules-cursor-ai-wordpress-draft-macos-prompt")),
+        createRule("Python LLM & ML Workflow", "python-llm-ml-workflow-cursorrules-prompt-file",
+          await getRuleMetadata("python-llm-ml-workflow-cursorrules-prompt-file"))
       ]
     },
     {
       name: "Mobile Development",
+      description: "Rules for mobile app development including React Native, Flutter, SwiftUI, and Android development. Covers best practices for cross-platform and native mobile applications.",
       rules: [
-        { name: "React Native Expo", path: "react-native-expo-cursorrules-prompt-file" },
-        { name: "SwiftUI Guidelines", path: "swiftui-guidelines-cursorrules-prompt-file" },
-        { name: "TypeScript (Expo, Jest, Detox)", path: "typescript-expo-jest-detox-cursorrules-prompt-file" },
-        { name: "Android Native (Jetpack Compose)", path: "android-jetpack-compose-cursorrules-prompt-file" },
-        { name: "Flutter Expert", path: "flutter-app-expert-cursorrules-prompt-file" }
+        createRule("React Native Expo", "react-native-expo-cursorrules-prompt-file", 
+          await getRuleMetadata("react-native-expo-cursorrules-prompt-file")),
+        createRule("SwiftUI Guidelines", "swiftui-guidelines-cursorrules-prompt-file",
+          await getRuleMetadata("swiftui-guidelines-cursorrules-prompt-file")),
+        createRule("TypeScript (Expo, Jest, Detox)", "typescript-expo-jest-detox-cursorrules-prompt-file",
+          await getRuleMetadata("typescript-expo-jest-detox-cursorrules-prompt-file")),
+        createRule("Android Native (Jetpack Compose)", "android-jetpack-compose-cursorrules-prompt-file",
+          await getRuleMetadata("android-jetpack-compose-cursorrules-prompt-file")),
+        createRule("Flutter Expert", "flutter-app-expert-cursorrules-prompt-file",
+          await getRuleMetadata("flutter-app-expert-cursorrules-prompt-file"))
       ]
     },
     {
       name: "CSS and Styling",
+      description: "Comprehensive styling rules covering Tailwind CSS, styled-components, Chakra UI, and other modern CSS frameworks. Includes best practices for responsive and maintainable styles.",
       rules: [
-        { name: "Tailwind CSS (Next.js Guide)", path: "tailwind-css-nextjs-guide-cursorrules-prompt-file" },
-        { name: "Tailwind (React, Firebase)", path: "tailwind-react-firebase-cursorrules-prompt-file" },
-        { name: "Tailwind (shadcn/ui Integration)", path: "tailwind-shadcn-ui-integration-cursorrules-prompt-" },
-        { name: "HTML (Tailwind CSS, JavaScript)", path: "html-tailwind-css-javascript-cursorrules-prompt-fi" },
-        { name: "JavaScript (Astro, Tailwind CSS)", path: "javascript-astro-tailwind-css-cursorrules-prompt-f" },
-        { name: "React (Styled Components)", path: "react-styled-components-cursorrules-prompt-file" },
-        { name: "React (Chakra UI)", path: "react-chakra-ui-cursorrules-prompt-file" }
+        createRule("Tailwind CSS (Next.js Guide)", "tailwind-css-nextjs-guide-cursorrules-prompt-file",
+          await getRuleMetadata("tailwind-css-nextjs-guide-cursorrules-prompt-file")),
+        createRule("Tailwind (React, Firebase)", "tailwind-react-firebase-cursorrules-prompt-file",
+          await getRuleMetadata("tailwind-react-firebase-cursorrules-prompt-file")),
+        createRule("Tailwind (shadcn/ui Integration)", "tailwind-shadcn-ui-integration-cursorrules-prompt-",
+          await getRuleMetadata("tailwind-shadcn-ui-integration-cursorrules-prompt-")),
+        createRule("HTML (Tailwind CSS, JavaScript)", "html-tailwind-css-javascript-cursorrules-prompt-fi",
+          await getRuleMetadata("html-tailwind-css-javascript-cursorrules-prompt-fi")),
+        createRule("JavaScript (Astro, Tailwind CSS)", "javascript-astro-tailwind-css-cursorrules-prompt-f",
+          await getRuleMetadata("javascript-astro-tailwind-css-cursorrules-prompt-f")),
+        createRule("React (Styled Components)", "react-styled-components-cursorrules-prompt-file",
+          await getRuleMetadata("react-styled-components-cursorrules-prompt-file")),
+        createRule("React (Chakra UI)", "react-chakra-ui-cursorrules-prompt-file",
+          await getRuleMetadata("react-chakra-ui-cursorrules-prompt-file"))
       ]
     },
     {
       name: "State Management",
+      description: "Rules for managing application state using popular libraries like Redux, MobX, and React Query. Includes patterns for scalable and maintainable state management.",
       rules: [
-        { name: "React (Redux, TypeScript)", path: "react-redux-typescript-cursorrules-prompt-file" },
-        { name: "React (MobX)", path: "react-mobx-cursorrules-prompt-file" },
-        { name: "React (React Query)", path: "react-query-cursorrules-prompt-file" }
+        createRule("React (Redux, TypeScript)", "react-redux-typescript-cursorrules-prompt-file",
+          await getRuleMetadata("react-redux-typescript-cursorrules-prompt-file")),
+        createRule("React (MobX)", "react-mobx-cursorrules-prompt-file",
+          await getRuleMetadata("react-mobx-cursorrules-prompt-file")),
+        createRule("React (React Query)", "react-query-cursorrules-prompt-file",
+          await getRuleMetadata("react-query-cursorrules-prompt-file"))
       ]
     },
     {
       name: "Database and API",
+      description: "Guidelines for database integration and API development, including GraphQL, REST APIs, and various database technologies. Focuses on best practices for data handling and API design.",
       rules: [
-        { name: "GraphQL (Apollo Client)", path: "react-graphql-apollo-client-cursorrules-prompt-file" },
-        { name: "TypeScript (Axios)", path: "typescript-axios-cursorrules-prompt-file" }
+        createRule("GraphQL (Apollo Client)", "react-graphql-apollo-client-cursorrules-prompt-file",
+          await getRuleMetadata("react-graphql-apollo-client-cursorrules-prompt-file")),
+        createRule("TypeScript (Axios)", "typescript-axios-cursorrules-prompt-file",
+          await getRuleMetadata("typescript-axios-cursorrules-prompt-file"))
       ]
     },
     {
       name: "Testing",
+      description: "Testing guidelines and best practices for various frameworks and tools, including Jest, Detox, and other testing libraries. Covers unit, integration, and end-to-end testing.",
       rules: [
-        { name: "TypeScript (Expo, Jest, Detox)", path: "typescript-expo-jest-detox-cursorrules-prompt-file" }
+        createRule("TypeScript (Expo, Jest, Detox)", "typescript-expo-jest-detox-cursorrules-prompt-file",
+          await getRuleMetadata("typescript-expo-jest-detox-cursorrules-prompt-file"))
       ]
     },
     {
       name: "Build Tools and Development",
+      description: "Development tools and build system configurations, including Chrome Extensions, GitHub workflows, containerization, and development best practices.",
       rules: [
-        { name: "Chrome Extension (JavaScript/TypeScript)", path: "chrome-extension-dev-js-typescript-cursorrules-pro" },
-        { name: "GitHub Code Quality", path: "github-code-quality-cursorrules-prompt-file" },
-        { name: "GitHub Instructions", path: "github-cursorrules-prompt-file-instructions" },
-        { name: "Kubernetes (MkDocs Documentation)", path: "kubernetes-mkdocs-documentation-cursorrules-prompt" },
-        { name: "Linux (NVIDIA CUDA, Python)", path: "linux-nvidia-cuda-python-cursorrules-prompt-file" },
-        { name: "Optimize (DRY, SOLID Principles)", path: "optimize-dry-solid-principles-cursorrules-prompt-f" },
-        { name: "Python Containerization", path: "python-containerization-cursorrules-prompt-file" },
-        { name: "Python (GitHub Setup)", path: "python-github-setup-cursorrules-prompt-file" },
-        { name: "Tauri (Svelte, TypeScript Guide)", path: "tauri-svelte-typescript-guide-cursorrules-prompt-f" },
-        { name: "TypeScript Code Convention", path: "typescript-code-convention-cursorrules-prompt-file" }
+        createRule("Chrome Extension (JavaScript/TypeScript)", "chrome-extension-dev-js-typescript-cursorrules-pro",
+          await getRuleMetadata("chrome-extension-dev-js-typescript-cursorrules-pro")),
+        createRule("GitHub Code Quality", "github-code-quality-cursorrules-prompt-file",
+          await getRuleMetadata("github-code-quality-cursorrules-prompt-file")),
+        createRule("GitHub Instructions", "github-cursorrules-prompt-file-instructions",
+          await getRuleMetadata("github-cursorrules-prompt-file-instructions")),
+        createRule("Kubernetes (MkDocs Documentation)", "kubernetes-mkdocs-documentation-cursorrules-prompt",
+          await getRuleMetadata("kubernetes-mkdocs-documentation-cursorrules-prompt")),
+        createRule("Linux (NVIDIA CUDA, Python)", "linux-nvidia-cuda-python-cursorrules-prompt-file",
+          await getRuleMetadata("linux-nvidia-cuda-python-cursorrules-prompt-file")),
+        createRule("Optimize (DRY, SOLID Principles)", "optimize-dry-solid-principles-cursorrules-prompt-f",
+          await getRuleMetadata("optimize-dry-solid-principles-cursorrules-prompt-f")),
+        createRule("Python Containerization", "python-containerization-cursorrules-prompt-file",
+          await getRuleMetadata("python-containerization-cursorrules-prompt-file")),
+        createRule("Python (GitHub Setup)", "python-github-setup-cursorrules-prompt-file",
+          await getRuleMetadata("python-github-setup-cursorrules-prompt-file")),
+        createRule("Tauri (Svelte, TypeScript Guide)", "tauri-svelte-typescript-guide-cursorrules-prompt-f",
+          await getRuleMetadata("tauri-svelte-typescript-guide-cursorrules-prompt-f")),
+        createRule("TypeScript Code Convention", "typescript-code-convention-cursorrules-prompt-file",
+          await getRuleMetadata("typescript-code-convention-cursorrules-prompt-file"))
       ]
     },
     {
       name: "Language-Specific",
+      description: "Language-specific guidelines and best practices for JavaScript, TypeScript, Python, and other programming languages. Includes code quality standards and language-specific patterns.",
       rules: [
-        { name: "JavaScript/TypeScript Code Quality", path: "javascript-typescript-code-quality-cursorrules-pro" },
-        { name: "JavaScript (Chrome APIs)", path: "javascript-chrome-apis-cursorrules-prompt-file" },
-        { name: "Optimize (Rell Blockchain Code)", path: "optimize-rell-blockchain-code-cursorrules-prompt-f" },
-        { name: "Pandas (scikit-learn Guide)", path: "pandas-scikit-learn-guide-cursorrules-prompt-file" },
-        { name: "Plasticode (Telegram API)", path: "plasticode-telegram-api-cursorrules-prompt-file" },
-        { name: "PyQt6 (EEG Processing)", path: "pyqt6-eeg-processing-cursorrules-prompt-file" },
-        { name: "Python/TypeScript Guide", path: "python--typescript-guide-cursorrules-prompt-file" },
-        { name: "Python Best Practices", path: "python-cursorrules-prompt-file-best-practices" },
-        { name: "Python Developer", path: "python-developer-cursorrules-prompt-file" },
-        { name: "Python Projects Guide", path: "python-projects-guide-cursorrules-prompt-file" },
-        { name: "PyTorch (scikit-learn)", path: "pytorch-scikit-learn-cursorrules-prompt-file" },
-        { name: "Solidity (Hardhat)", path: "solidity-hardhat-cursorrules-prompt-file" },
-        { name: "Solidity (React Blockchain Apps)", path: "solidity-react-blockchain-apps-cursorrules-prompt-" },
-        { name: "TypeScript (LLM Tech Stack)", path: "typescript-llm-tech-stack-cursorrules-prompt-file" },
-        { name: "TypeScript (Node.js, Next.js, AI)", path: "typescript-nodejs-nextjs-ai-cursorrules-prompt-fil" },
-        { name: "TypeScript (Node.js, Next.js, React, UI, CSS)", path: "typescript-nodejs-nextjs-react-ui-css-cursorrules-" },
-        { name: "TypeScript (Node.js, React, Vite)", path: "typescript-nodejs-react-vite-cursorrules-prompt-fi" },
-        { name: "TypeScript (React, Next.js, Cloudflare)", path: "typescript-react-nextjs-cloudflare-cursorrules-pro" },
-        { name: "TypeScript (React, NextUI, Supabase)", path: "typescript-react-nextui-supabase-cursorrules-promp" },
-        { name: "TypeScript (shadcn/ui, Next.js)", path: "typescript-shadcn-ui-nextjs-cursorrules-prompt-fil" },
-        { name: "TypeScript (Vite, Tailwind)", path: "typescript-vite-tailwind-cursorrules-prompt-file" },
-        { name: "TypeScript (Vue.js)", path: "typescript-vuejs-cursorrules-prompt-file" },
-        { name: "TypeScript (Zod, Tailwind, Next.js)", path: "typescript-zod-tailwind-nextjs-cursorrules-prompt-" },
-        { name: "WebAssembly (Z80 Cellular Automata)", path: "webassembly-z80-cellular-automata-cursorrules-prom" },
-        { name: "TypeScript (Next.js)", path: "typescript-nextjs-cursorrules-prompt-file" },
-        { name: "TypeScript (Next.js, React)", path: "typescript-nextjs-react-cursorrules-prompt-file" },
-        { name: "TypeScript (Next.js, React, Tailwind, Supabase)", path: "typescript-nextjs-react-tailwind-supabase-cursorru" },
-        { name: "TypeScript (Next.js, Supabase)", path: "typescript-nextjs-supabase-cursorrules-prompt-file" },
-        { name: "TypeScript (Node.js, Next.js App)", path: "typescript-nodejs-nextjs-app-cursorrules-prompt-fi" },
-        { name: "TypeScript (React)", path: "typescript-react-cursorrules-prompt-file" },
-        { name: "TypeScript (Clasp App Script)", path: "typescript-clasp-cursorrules-prompt-file" }
+        createRule("JavaScript/TypeScript Code Quality", "javascript-typescript-code-quality-cursorrules-pro",
+          await getRuleMetadata("javascript-typescript-code-quality-cursorrules-pro")),
+        createRule("JavaScript (Chrome APIs)", "javascript-chrome-apis-cursorrules-prompt-file",
+          await getRuleMetadata("javascript-chrome-apis-cursorrules-prompt-file")),
+        createRule("Optimize (Rell Blockchain Code)", "optimize-rell-blockchain-code-cursorrules-prompt-f",
+          await getRuleMetadata("optimize-rell-blockchain-code-cursorrules-prompt-f")),
+        createRule("Pandas (scikit-learn Guide)", "pandas-scikit-learn-guide-cursorrules-prompt-file",
+          await getRuleMetadata("pandas-scikit-learn-guide-cursorrules-prompt-file")),
+        createRule("Plasticode (Telegram API)", "plasticode-telegram-api-cursorrules-prompt-file",
+          await getRuleMetadata("plasticode-telegram-api-cursorrules-prompt-file")),
+        createRule("PyQt6 (EEG Processing)", "pyqt6-eeg-processing-cursorrules-prompt-file",
+          await getRuleMetadata("pyqt6-eeg-processing-cursorrules-prompt-file")),
+        createRule("Python/TypeScript Guide", "python--typescript-guide-cursorrules-prompt-file",
+          await getRuleMetadata("python--typescript-guide-cursorrules-prompt-file")),
+        createRule("Python Best Practices", "python-cursorrules-prompt-file-best-practices",
+          await getRuleMetadata("python-cursorrules-prompt-file-best-practices")),
+        createRule("Python Developer", "python-developer-cursorrules-prompt-file",
+          await getRuleMetadata("python-developer-cursorrules-prompt-file")),
+        createRule("Python Projects Guide", "python-projects-guide-cursorrules-prompt-file",
+          await getRuleMetadata("python-projects-guide-cursorrules-prompt-file")),
+        createRule("PyTorch (scikit-learn)", "pytorch-scikit-learn-cursorrules-prompt-file",
+          await getRuleMetadata("pytorch-scikit-learn-cursorrules-prompt-file")),
+        createRule("Solidity (Hardhat)", "solidity-hardhat-cursorrules-prompt-file",
+          await getRuleMetadata("solidity-hardhat-cursorrules-prompt-file")),
+        createRule("Solidity (React Blockchain Apps)", "solidity-react-blockchain-apps-cursorrules-prompt-",
+          await getRuleMetadata("solidity-react-blockchain-apps-cursorrules-prompt-")),
+        createRule("TypeScript (LLM Tech Stack)", "typescript-llm-tech-stack-cursorrules-prompt-file",
+          await getRuleMetadata("typescript-llm-tech-stack-cursorrules-prompt-file")),
+        createRule("TypeScript (Node.js, Next.js, AI)", "typescript-nodejs-nextjs-ai-cursorrules-prompt-fil",
+          await getRuleMetadata("typescript-nodejs-nextjs-ai-cursorrules-prompt-fil")),
+        createRule("TypeScript (Node.js, Next.js, React, UI, CSS)", "typescript-nodejs-nextjs-react-ui-css-cursorrules-",
+          await getRuleMetadata("typescript-nodejs-nextjs-react-ui-css-cursorrules-")),
+        createRule("TypeScript (Node.js, React, Vite)", "typescript-nodejs-react-vite-cursorrules-prompt-fi",
+          await getRuleMetadata("typescript-nodejs-react-vite-cursorrules-prompt-fi")),
+        createRule("TypeScript (React, Next.js, Cloudflare)", "typescript-react-nextjs-cloudflare-cursorrules-pro",
+          await getRuleMetadata("typescript-react-nextjs-cloudflare-cursorrules-pro")),
+        createRule("TypeScript (React, NextUI, Supabase)", "typescript-react-nextui-supabase-cursorrules-promp",
+          await getRuleMetadata("typescript-react-nextui-supabase-cursorrules-promp")),
+        createRule("TypeScript (shadcn/ui, Next.js)", "typescript-shadcn-ui-nextjs-cursorrules-prompt-fil",
+          await getRuleMetadata("typescript-shadcn-ui-nextjs-cursorrules-prompt-fil")),
+        createRule("TypeScript (Vite, Tailwind)", "typescript-vite-tailwind-cursorrules-prompt-file",
+          await getRuleMetadata("typescript-vite-tailwind-cursorrules-prompt-file")),
+        createRule("TypeScript (Vue.js)", "typescript-vuejs-cursorrules-prompt-file",
+          await getRuleMetadata("typescript-vuejs-cursorrules-prompt-file")),
+        createRule("TypeScript (Zod, Tailwind, Next.js)", "typescript-zod-tailwind-nextjs-cursorrules-prompt-",
+          await getRuleMetadata("typescript-zod-tailwind-nextjs-cursorrules-prompt-")),
+        createRule("WebAssembly (Z80 Cellular Automata)", "webassembly-z80-cellular-automata-cursorrules-prom",
+          await getRuleMetadata("webassembly-z80-cellular-automata-cursorrules-prom")),
+        createRule("TypeScript (Next.js)", "typescript-nextjs-cursorrules-prompt-file",
+          await getRuleMetadata("typescript-nextjs-cursorrules-prompt-file")),
+        createRule("TypeScript (Next.js, React)", "typescript-nextjs-react-cursorrules-prompt-file",
+          await getRuleMetadata("typescript-nextjs-react-cursorrules-prompt-file")),
+        createRule("TypeScript (Next.js, React, Tailwind, Supabase)", "typescript-nextjs-react-tailwind-supabase-cursorru",
+          await getRuleMetadata("typescript-nextjs-react-tailwind-supabase-cursorrules-prompt-")),
+        createRule("TypeScript (Next.js, Supabase)", "typescript-nextjs-supabase-cursorrules-prompt-file",
+          await getRuleMetadata("typescript-nextjs-supabase-cursorrules-prompt-file")),
+        createRule("TypeScript (Node.js, Next.js App)", "typescript-nodejs-nextjs-app-cursorrules-prompt-fi",
+          await getRuleMetadata("typescript-nodejs-nextjs-app-cursorrules-prompt-fi")),
+        createRule("TypeScript (React)", "typescript-react-cursorrules-prompt-file",
+          await getRuleMetadata("typescript-react-cursorrules-prompt-file")),
+        createRule("TypeScript (Clasp App Script)", "typescript-clasp-cursorrules-prompt-file",
+          await getRuleMetadata("typescript-clasp-cursorrules-prompt-file"))
       ]
     },
     {
       name: "Other",
+      description: "Additional Cursor AI rules covering various topics including game development, code guidelines, and specialized development scenarios.",
       rules: [
-        { name: "ASCII Simulation Game", path: "ascii-simulation-game-cursorrules-prompt-file" },
-        { name: "Code Guidelines", path: "code-guidelines-cursorrules-prompt-file" },
-        { name: "DragonRuby Best Practices", path: "dragonruby-best-practices-cursorrules-prompt-file" },
-        { name: "Graphical Apps Development", path: "graphical-apps-development-cursorrules-prompt-file" },
-        { name: "Meta-Prompt", path: "meta-prompt-cursorrules-prompt-file" },
-        { name: "Next.js (Type LLM)", path: "next-type-llm" },
-        { name: "Unity (C#)", path: "unity-cursor-ai-c-cursorrules-prompt-file" },
-        { name: "Web App Optimization", path: "web-app-optimization-cursorrules-prompt-file" }
+        createRule("ASCII Simulation Game", "ascii-simulation-game-cursorrules-prompt-file",
+          await getRuleMetadata("ascii-simulation-game-cursorrules-prompt-file")),
+        createRule("Code Guidelines", "code-guidelines-cursorrules-prompt-file",
+          await getRuleMetadata("code-guidelines-cursorrules-prompt-file")),
+        createRule("DragonRuby Best Practices", "dragonruby-best-practices-cursorrules-prompt-file",
+          await getRuleMetadata("dragonruby-best-practices-cursorrules-prompt-file")),
+        createRule("Graphical Apps Development", "graphical-apps-development-cursorrules-prompt-file",
+          await getRuleMetadata("graphical-apps-development-cursorrules-prompt-file")),
+        createRule("Meta-Prompt", "meta-prompt-cursorrules-prompt-file",
+          await getRuleMetadata("meta-prompt-cursorrules-prompt-file")),
+        createRule("Next.js (Type LLM)", "next-type-llm",
+          await getRuleMetadata("next-type-llm")),
+        createRule("Unity (C#)", "unity-cursor-ai-c-cursorrules-prompt-file",
+          await getRuleMetadata("unity-cursor-ai-c-cursorrules-prompt-file")),
+        createRule("Web App Optimization", "web-app-optimization-cursorrules-prompt-file",
+          await getRuleMetadata("web-app-optimization-cursorrules-prompt-file"))
       ]
     }
   ];
+}
+
+// Helper function to get SEO metadata for a specific rule
+export async function getRuleSEOMetadata(rulePath: string): Promise<SEOMetadata> {
+  const rule = await getRuleByPath(rulePath);
+  if (!rule) {
+    return {
+      title: "Cursor AI Rule Not Found",
+      description: "The requested Cursor AI rule could not be found.",
+      keywords: ["cursor ai", "rules", "development"]
+    };
+  }
+
+  const category = await getCategoryByRulePath(rulePath);
+  return {
+    title: `${rule.name} - Cursor AI Rules`,
+    description: rule.description || `Cursor AI rules for ${rule.name}`,
+    keywords: [
+      "cursor ai",
+      "development",
+      "rules",
+      rule.name.toLowerCase(),
+      ...(rule.keywords || []),
+      ...(category ? [category.name.toLowerCase()] : [])
+    ],
+    ogType: "article",
+    canonical: `/rules/${rule.path}`
+  };
+}
+
+// Helper function to get category by rule path
+export async function getCategoryByRulePath(rulePath: string): Promise<Category | undefined> {
+  const categories = await getCategories();
+  return categories.find(category => 
+    category.rules.some(rule => rule.path === rulePath)
+  );
 }
 
 // Helper function to get a specific rule by path
