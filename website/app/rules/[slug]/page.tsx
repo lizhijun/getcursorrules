@@ -26,6 +26,15 @@ interface Frontmatter {
   [key: string]: any;
 }
 
+// 辅助函数：格式化标题
+function formatTitle(slug: string): string {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+    .replace(/Cursorrules Prompt File$/, '');
+}
+
 async function getRuleContent(slug: string) {
   try {
     const rulesDir = path.join(process.cwd(), 'rules', slug);
@@ -41,7 +50,7 @@ async function getRuleContent(slug: string) {
       readmeContent = parsed.content;
       frontmatter = parsed.data as Frontmatter;
     } catch (error) {
-      console.warn(`No README.md found for ${slug}, using default content`);
+      console.warn(`No README.md found for ${slug}`);
       readmeContent = `# ${formatTitle(slug)}\n\nNo README content available.`;
     }
     
@@ -54,11 +63,8 @@ async function getRuleContent(slug: string) {
       cursorrulesContent = '// No .cursorrules content available';
     }
 
-    // 格式化标题
-    const title = frontmatter.title || formatTitle(slug);
-
     return {
-      title,
+      title: frontmatter.title || formatTitle(slug),
       readme: readmeContent,
       cursorrules: cursorrulesContent,
       frontmatter
@@ -67,15 +73,6 @@ async function getRuleContent(slug: string) {
     console.error(`Failed to get content for ${slug}:`, error);
     return null;
   }
-}
-
-// 辅助函数：格式化标题
-function formatTitle(slug: string): string {
-  return slug
-    .replace(/-cursorrules-prompt-file$/, '')
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

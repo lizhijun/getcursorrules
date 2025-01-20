@@ -1,7 +1,7 @@
 import { getCategories } from '@/lib/categories';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { FiArrowLeft, FiHome } from 'react-icons/fi';
+import { FiHome, FiArrowLeft } from 'react-icons/fi';
 import { Metadata } from 'next';
 
 interface Props {
@@ -26,10 +26,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: `${category.name} - Cursor AI Rules`,
-    description: category.description,
+    description: category.description || `Cursor AI rules for ${category.name}`,
     openGraph: {
       title: `${category.name} - Cursor AI Rules`,
-      description: category.description,
+      description: category.description || `Cursor AI rules for ${category.name}`,
       type: 'website',
     }
   };
@@ -52,21 +52,15 @@ export default async function CategoryPage({ params }: Props) {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         {/* 面包屑导航 */}
         <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-8">
-          <Link 
-            href="/"
-            className="hover:text-blue-500 flex items-center"
-          >
+          <Link href="/" className="hover:text-blue-500 flex items-center">
             <FiHome className="w-4 h-4 mr-1" />
             Home
           </Link>
           <span>/</span>
-          <Link 
-            href="/categories"
-            className="hover:text-blue-500"
-          >
+          <Link href="/#categories" className="hover:text-blue-500">
             Categories
           </Link>
           <span>/</span>
@@ -74,21 +68,21 @@ export default async function CategoryPage({ params }: Props) {
         </nav>
 
         {/* 分类标题和描述 */}
-        <div className="mb-12">
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
           <h1 className="text-4xl font-bold mb-4">{category.name}</h1>
-          <p className="text-gray-600 text-lg">{category.description}</p>
-          <div className="mt-4 text-sm text-gray-500">
+          <p className="text-gray-600 text-lg mb-4">{category.description}</p>
+          <div className="text-sm text-gray-500">
             {sortedRules.length} rules in this category
           </div>
         </div>
 
         {/* 规则列表 */}
-        <div className="grid gap-6">
+        <div className="space-y-4">
           {sortedRules.map((rule) => (
             <Link
               key={rule.path}
               href={`/rules/${rule.path}`}
-              className="group block bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 p-6"
+              className="block bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 p-6"
             >
               <div className="flex justify-between items-start">
                 <div>
@@ -96,20 +90,38 @@ export default async function CategoryPage({ params }: Props) {
                     {rule.name}
                   </h3>
                   {rule.description && (
-                    <p className="text-gray-600">{rule.description}</p>
+                    <p className="text-gray-600 mb-3">{rule.description}</p>
                   )}
-                  {/* 添加元数据显示 */}
-                  <div className="mt-3 flex items-center space-x-4 text-sm text-gray-500">
+                  {/* 规则元数据 */}
+                  <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                     {rule.lastUpdated && (
-                      <span>Updated: {new Date(rule.lastUpdated).toLocaleDateString()}</span>
+                      <div className="flex items-center">
+                        <span className="font-medium mr-2">Updated:</span>
+                        {new Date(rule.lastUpdated).toLocaleDateString()}
+                      </div>
                     )}
                     {rule.author && (
-                      <span>By: {rule.author}</span>
+                      <div className="flex items-center">
+                        <span className="font-medium mr-2">By:</span>
+                        {rule.author}
+                      </div>
+                    )}
+                    {rule.keywords && rule.keywords.length > 0 && (
+                      <div className="flex items-center flex-wrap gap-2">
+                        {rule.keywords.map(keyword => (
+                          <span
+                            key={keyword}
+                            className="px-2 py-1 bg-gray-100 rounded-full text-gray-600 text-xs"
+                          >
+                            {keyword}
+                          </span>
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>
                 <svg
-                  className="w-6 h-6 text-gray-400 group-hover:text-blue-500 flex-shrink-0 ml-4 transition-colors"
+                  className="w-6 h-6 text-gray-400 group-hover:text-blue-500 flex-shrink-0 ml-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -126,26 +138,16 @@ export default async function CategoryPage({ params }: Props) {
           ))}
         </div>
 
-        {/* 返回顶部按钮 */}
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-8 right-8 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition-colors"
-          aria-label="Back to top"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        {/* 返回首页按钮 */}
+        <div className="mt-8 text-center">
+          <Link
+            href="/#categories"
+            className="inline-flex items-center text-blue-500 hover:text-blue-600"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 10l7-7m0 0l7 7m-7-7v18"
-            />
-          </svg>
-        </button>
+            <FiArrowLeft className="mr-2" />
+            Back to Categories
+          </Link>
+        </div>
       </div>
     </main>
   );
