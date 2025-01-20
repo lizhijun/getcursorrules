@@ -8,6 +8,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { FiHome, FiDownload, FiGithub } from 'react-icons/fi';
 import { Metadata } from 'next';
+import { Components } from 'react-markdown';
+import { BackToTopButton } from '@/components/BackToTopButton';
 
 interface PageProps {
   params: {
@@ -15,11 +17,20 @@ interface PageProps {
   };
 }
 
+interface Frontmatter {
+  title?: string;
+  description?: string;
+  author?: string;
+  lastUpdated?: string;
+  keywords?: string[];
+  [key: string]: any;
+}
+
 async function getRuleContent(slug: string) {
   try {
     const rulesDir = path.join(process.cwd(), 'rules', slug);
     let readmeContent = '';
-    let frontmatter = {};
+    let frontmatter: Frontmatter = {};
     let cursorrulesContent = '';
 
     // 尝试读取 README.md
@@ -28,7 +39,7 @@ async function getRuleContent(slug: string) {
       readmeContent = await fs.readFile(readmePath, 'utf-8');
       const parsed = matter(readmeContent);
       readmeContent = parsed.content;
-      frontmatter = parsed.data;
+      frontmatter = parsed.data as Frontmatter;
     } catch (error) {
       console.warn(`No README.md found for ${slug}, using default content`);
       readmeContent = `# ${formatTitle(slug)}\n\nNo README content available.`;
@@ -87,6 +98,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
+// 定义代码组件的 props 类型
+interface CodeProps {
+  node?: any;
+  inline?: boolean;
+  className?: string;
+  children?: React.ReactNode;
+}
+
 export default async function RulePage({ params }: PageProps) {
   const rule = await getRuleByPath(params.slug);
   const category = await getCategoryByRulePath(params.slug);
@@ -95,6 +114,29 @@ export default async function RulePage({ params }: PageProps) {
   if (!rule || !category) {
     notFound();
   }
+
+  // 定义 Markdown 组件
+  const components: Components = {
+    code: ({ inline, className, children, ...props }: CodeProps) => {
+      const match = /language-(\w+)/.exec(className || '');
+      const code = String(children).replace(/\n$/, '');
+      
+      if (!inline && match) {
+        return (
+          <CodeBlock
+            code={code}
+            language={match[1]}
+          />
+        );
+      }
+      
+      return (
+        <code className={className} {...props}>
+          {children}
+        </code>
+      );
+    },
+  };
 
   return (
     <main className="container mx-auto px-4 py-8">
@@ -185,29 +227,7 @@ export default async function RulePage({ params }: PageProps) {
         <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
           <h2 className="text-2xl font-bold mb-6">Documentation</h2>
           <div className="prose prose-lg max-w-none">
-            <ReactMarkdown
-              components={{
-                code({ node, inline, className, children, ...props }) {
-                  const match = /language-(\w+)/.exec(className || '');
-                  const code = String(children).replace(/\n$/, '');
-                  
-                  if (!inline && match) {
-                    return (
-                      <CodeBlock
-                        code={code}
-                        language={match[1]}
-                      />
-                    );
-                  }
-                  
-                  return (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  );
-                },
-              }}
-            >
+            <ReactMarkdown components={components}>
               {content?.readme || ''}
             </ReactMarkdown>
           </div>
@@ -224,6 +244,9 @@ export default async function RulePage({ params }: PageProps) {
             />
           </div>
         </div>
+
+        {/* 返回顶部按钮 */}
+        <BackToTopButton />
       </div>
     </main>
   );

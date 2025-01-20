@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Category } from '@/lib/types';
-import { SearchBar } from './SearchBar';
+import { IconType } from 'react-icons';
+import { CategoryFilters } from './CategoryFilters';
 import { 
   FiLayout,
   FiServer,
@@ -18,7 +19,7 @@ import {
 } from 'react-icons/fi';
 
 // 分类图标映射
-const categoryIcons: { [key: string]: React.ComponentType } = {
+const categoryIcons: { [key: string]: IconType } = {
   "Frontend Frameworks and Libraries": FiLayout,
   "Backend and Full-Stack": FiServer,
   "Mobile Development": FiSmartphone,
@@ -49,34 +50,12 @@ export function CategoryList({ categories }: { categories: Category[] }) {
   return (
     <div className="space-y-8">
       {/* 搜索和过滤区域 */}
-      <div className="space-y-6">
-        <SearchBar onSearch={setSearchQuery} />
-        
-        {/* 分类过滤器 */}
-        <div className="flex flex-wrap gap-2 justify-center">
-          <button
-            onClick={() => setSelectedCategory(null)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200
-              ${!selectedCategory 
-                ? 'bg-blue-500 text-white' 
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-          >
-            All
-          </button>
-          {categories.map(category => (
-            <button
-              key={category.name}
-              onClick={() => setSelectedCategory(category.name)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200
-                ${selectedCategory === category.name 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
-      </div>
+      <CategoryFilters
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onCategorySelect={setSelectedCategory}
+        onSearch={setSearchQuery}
+      />
 
       {/* 搜索结果计数 */}
       <div className="text-center text-gray-600">
@@ -90,7 +69,7 @@ export function CategoryList({ categories }: { categories: Category[] }) {
       {/* 分类列表 */}
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {filteredCategories.map((category) => {
-          const Icon = categoryIcons[category.name] || FiGrid;
+          const IconComponent = categoryIcons[category.name] || FiGrid;
           return (
             <div 
               key={category.name}
@@ -98,7 +77,7 @@ export function CategoryList({ categories }: { categories: Category[] }) {
             >
               <div className="p-6">
                 <div className="flex items-center mb-4">
-                  <Icon className="w-6 h-6 text-blue-500 mr-3" />
+                  <IconComponent className="w-6 h-6 text-blue-500 mr-3" />
                   <h3 className="text-xl font-semibold">{category.name}</h3>
                 </div>
                 <p className="text-gray-600 mb-6 line-clamp-2">
