@@ -3,6 +3,11 @@ import path from 'path';
 import matter from 'gray-matter';
 import ReactMarkdown from 'react-markdown';
 import { CodeBlock } from '@/components/CodeBlock';
+import { getRuleByPath, getCategoryByRulePath, getCategories } from '@/lib/categories';
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { FiHome, FiDownload, FiGithub } from 'react-icons/fi';
+import { Metadata } from 'next';
 
 interface PageProps {
   params: {
@@ -62,30 +67,125 @@ function formatTitle(slug: string): string {
     .join(' ');
 }
 
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const rule = await getRuleByPath(params.slug);
+  if (!rule) {
+    return {
+      title: 'Rule Not Found - Cursor AI Rules',
+      description: 'The requested rule could not be found.'
+    };
+  }
+
+  return {
+    title: `${rule.name} - Cursor AI Rules`,
+    description: rule.description || `Cursor AI rules for ${rule.name}`,
+    openGraph: {
+      title: `${rule.name} - Cursor AI Rules`,
+      description: rule.description || `Cursor AI rules for ${rule.name}`,
+      type: 'article',
+    }
+  };
+}
+
 export default async function RulePage({ params }: PageProps) {
+  const rule = await getRuleByPath(params.slug);
+  const category = await getCategoryByRulePath(params.slug);
   const content = await getRuleContent(params.slug);
-  
-  if (!content) {
-    return (
-      <div className="min-h-screen bg-white py-8">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold text-red-600">Rule not found</h1>
-          <p className="mt-4 text-gray-600">
-            The requested rule could not be found. Please check the URL and try again.
-          </p>
-        </div>
-      </div>
-    );
+
+  if (!rule || !category) {
+    notFound();
   }
 
   return (
-    <div className="min-h-screen bg-white py-8">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold mb-8">{content.title}</h1>
-          
-          {/* README 内容 */}
-          <div className="prose prose-lg max-w-none mb-12">
+    <main className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        {/* 面包屑导航 */}
+        <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-8">
+          <Link href="/" className="hover:text-blue-500 flex items-center">
+            <FiHome className="w-4 h-4 mr-1" />
+            Home
+          </Link>
+          <span>/</span>
+          <Link href="/categories" className="hover:text-blue-500">
+            Categories
+          </Link>
+          <span>/</span>
+          <Link 
+            href={`/categories/${category.name.toLowerCase().replace(/ /g, '-')}`}
+            className="hover:text-blue-500"
+          >
+            {category.name}
+          </Link>
+          <span>/</span>
+          <span className="text-gray-900 font-medium">{rule.name}</span>
+        </nav>
+
+        {/* 规则标题和元数据 */}
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+          <div className="flex justify-between items-start mb-6">
+            <h1 className="text-4xl font-bold">{rule.name}</h1>
+            <div className="flex space-x-4">
+              {/* 下载按钮 */}
+              <a
+                href={`/rules/${rule.path}/.cursorrules`}
+                download
+                className="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                <FiDownload className="w-5 h-5 mr-2" />
+                Download .cursorrules
+              </a>
+              {/* GitHub 链接 */}
+              {rule.githubUrl && (
+                <a
+                  href={rule.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors"
+                >
+                  <FiGithub className="w-5 h-5 mr-2" />
+                  View on GitHub
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* 规则描述和元数据 */}
+          {rule.description && (
+            <p className="text-gray-600 text-lg mb-6">{rule.description}</p>
+          )}
+          <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+            {rule.lastUpdated && (
+              <div className="flex items-center">
+                <span className="font-medium mr-2">Last Updated:</span>
+                {new Date(rule.lastUpdated).toLocaleDateString()}
+              </div>
+            )}
+            {rule.author && (
+              <div className="flex items-center">
+                <span className="font-medium mr-2">Author:</span>
+                {rule.author}
+              </div>
+            )}
+            {rule.keywords && rule.keywords.length > 0 && (
+              <div className="flex items-center flex-wrap gap-2">
+                <span className="font-medium mr-2">Keywords:</span>
+                {rule.keywords.map(keyword => (
+                  <span
+                    key={keyword}
+                    className="px-2 py-1 bg-gray-100 rounded-full text-gray-600"
+                  >
+                    {keyword}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* README 内容 */}
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+          <h2 className="text-2xl font-bold mb-6">Documentation</h2>
+          <div className="prose prose-lg max-w-none">
             <ReactMarkdown
               components={{
                 code({ node, inline, className, children, ...props }) {
@@ -109,23 +209,32 @@ export default async function RulePage({ params }: PageProps) {
                 },
               }}
             >
-              {content.readme}
+              {content?.readme || ''}
             </ReactMarkdown>
           </div>
-          
-          {/* .cursorrules 内容 */}
-          {content.cursorrules && (
-            <div className="mt-8">
-              <h2 className="text-2xl font-bold mb-4">.cursorrules</h2>
-              <CodeBlock 
-                code={content.cursorrules}
-                language="typescript"
-                title=".cursorrules"
-              />
-            </div>
-          )}
+        </div>
+
+        {/* .cursorrules 内容预览 */}
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          <h2 className="text-2xl font-bold mb-6">Rule Content Preview</h2>
+          <div className="bg-gray-50 rounded-lg overflow-x-auto">
+            <CodeBlock
+              code={content?.cursorrules || '// No .cursorrules content available'}
+              language="typescript"
+              title=".cursorrules"
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </main>
+  );
+}
+
+export async function generateStaticParams() {
+  const categories = await getCategories();
+  return categories.flatMap(category => 
+    category.rules.map(rule => ({
+      slug: rule.path,
+    }))
   );
 } 
