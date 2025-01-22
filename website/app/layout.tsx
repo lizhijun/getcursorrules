@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     }
   },
   verification: {
-    google: 'your-google-verification-code',
+    google: 'FKtO0_OPILs8_w8dV6sQ1l0ozWfF6EK_OiA1p0BVBxQ',
   },
   robots: {
     index: true,
