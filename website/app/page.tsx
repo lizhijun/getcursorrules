@@ -1,6 +1,7 @@
 import { getCategories } from '@/lib/categories';
 import { CategoryList } from '@/components/CategoryList';
 import { FiSettings, FiUsers, FiZap, FiCode, FiLayers, FiBox } from 'react-icons/fi';
+import { FAQ } from '@/components/FAQ';
 
 export default async function Home() {
   const categories = await getCategories();
@@ -95,6 +96,9 @@ export default async function Home() {
         </div>
         <CategoryList categories={categories} />
       </section>
+
+      {/* FAQ Section */}
+      <FAQ />
 
       {/* How to Use Section with Better Visual Hierarchy */}
       <section className="mb-20 max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-10">
