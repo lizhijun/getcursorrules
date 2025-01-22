@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import { Clarity } from "@/components/Clarity";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
@@ -110,6 +111,7 @@ export default function RootLayout({
         <Footer />
         <Analytics />
         <Clarity />
+        <GoogleAnalytics />
       </body>
     </html>
   );
