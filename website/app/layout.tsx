@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { Clarity } from "@/components/Clarity";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { Footer } from "@/components/Footer";
+import { StructuredData } from '@/components/StructuredData';
 
 export const metadata: Metadata = {
   title: "Awesome CursorRules - AI Rules for Cursor Editor",
@@ -19,7 +20,12 @@ export const metadata: Metadata = {
     'programming',
     'code generation',
     'ai assistant',
-    'developer tools'
+    'developer tools',
+    'ai rules',
+    'coding standards',
+    'development workflow',
+    'productivity tools',
+    'code automation'
   ],
   openGraph: {
     type: 'website',
@@ -31,8 +37,9 @@ export const metadata: Metadata = {
       url: 'https://getcursorrules.com/og-image.png',
       width: 1200,
       height: 630,
-      alt: 'Awesome CursorRules'
-    }]
+      alt: 'Awesome CursorRules - AI Rules Collection'
+    }],
+    locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
@@ -40,28 +47,52 @@ export const metadata: Metadata = {
     creator: '@cursorrules',
     title: 'Awesome CursorRules - AI Rules for Cursor Editor',
     description: 'Enhance your Cursor AI experience with curated .cursorrules files. Find rules for popular frameworks and libraries.',
-    images: ['https://getcursorrules.com/og-image.png']
+    images: [{
+      url: 'https://getcursorrules.com/og-image.png',
+      alt: 'Awesome CursorRules - AI Rules Collection'
+    }]
   },
   alternates: {
     canonical: 'https://getcursorrules.com',
     languages: {
       'en-US': 'https://getcursorrules.com',
       'zh-CN': 'https://getcursorrules.com/zh'
+    },
+    types: {
+      'application/rss+xml': 'https://getcursorrules.com/feed.xml'
     }
   },
   verification: {
     google: 'FKtO0_OPILs8_w8dV6sQ1l0ozWfF6EK_OiA1p0BVBxQ',
+    yandex: 'yandex-verification-code',
+    bing: 'bing-verification-code'
   },
   robots: {
     index: true,
     follow: true,
+    nocache: true,
     googleBot: {
       index: true,
       follow: true,
       'max-video-preview': -1,
       'max-image-preview': 'large',
       'max-snippet': -1,
+      'notranslate': false
     },
+    bingbot: {
+      index: true,
+      follow: true
+    }
+  },
+  category: 'Technology',
+  classification: 'Development Tools',
+  rating: 'General',
+  other: {
+    'apple-mobile-web-app-capable': 'yes',
+    'format-detection': 'telephone=no',
+    'msapplication-TileColor': '#0EA5E9',
+    'msapplication-config': '/icons/browserconfig.xml',
+    'theme-color': '#0EA5E9'
   },
   authors: [
     {
@@ -104,6 +135,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <StructuredData />
+      </head>
       <body className="flex flex-col min-h-screen">
         <main className="flex-grow">
           {children}
