@@ -5,6 +5,7 @@ import { Clarity } from "@/components/Clarity";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { Footer } from "@/components/Footer";
 import { StructuredData } from '@/components/StructuredData';
+import { GoogleAdsense } from '@/components/GoogleAdsense';
 
 export const metadata: Metadata = {
   title: "Awesome CursorRules - AI Rules for Cursor Editor",
@@ -137,6 +138,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <StructuredData />
+        <GoogleAdsense />
       </head>
       <body className="flex flex-col min-h-screen">
         <main className="flex-grow">
