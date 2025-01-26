@@ -66,7 +66,9 @@ export const metadata: Metadata = {
   verification: {
     google: 'FKtO0_OPILs8_w8dV6sQ1l0ozWfF6EK_OiA1p0BVBxQ',
     yandex: 'yandex-verification-code',
-    bing: 'bing-verification-code'
+    other: {
+      'msvalidate.01': ['bing-verification-code']
+    }
   },
   robots: {
     index: true,
@@ -79,16 +81,12 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
       'notranslate': false
-    },
-    bingbot: {
-      index: true,
-      follow: true
     }
   },
   category: 'Technology',
   classification: 'Development Tools',
-  rating: 'General',
   other: {
+    'rating': 'General',
     'apple-mobile-web-app-capable': 'yes',
     'format-detection': 'telephone=no',
     'msapplication-TileColor': '#0EA5E9',
