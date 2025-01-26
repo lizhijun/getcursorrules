@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://getcursorrules.com';
+  
   return {
     rules: [
       {
@@ -24,7 +26,7 @@ export default function robots(): MetadataRoute.Robots {
         crawlDelay: 2,
       },
     ],
-    sitemap: 'https://getcursorrules.com/sitemap.xml',
-    host: 'https://getcursorrules.com',
+    sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
   };
 } 
