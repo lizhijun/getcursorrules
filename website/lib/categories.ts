@@ -198,7 +198,9 @@ export async function getCategories(): Promise<Category[]> {
         createRule("Android Native (Jetpack Compose)", "android-jetpack-compose-cursorrules-prompt-file",
           await getRuleMetadata("android-jetpack-compose-cursorrules-prompt-file")),
         createRule("Flutter Expert", "flutter-app-expert-cursorrules-prompt-file",
-          await getRuleMetadata("flutter-app-expert-cursorrules-prompt-file"))
+          await getRuleMetadata("flutter-app-expert-cursorrules-prompt-file")),
+        createRule("Flutter (Riverpod)", "flutter-riverpod-cursorrules-prompt-file",
+          await getRuleMetadata("flutter-riverpod-cursorrules-prompt-file"))
       ]
     },
     {
@@ -364,7 +366,9 @@ export async function getCategories(): Promise<Category[]> {
         createRule("Unity (C#)", "unity-cursor-ai-c-cursorrules-prompt-file",
           await getRuleMetadata("unity-cursor-ai-c-cursorrules-prompt-file")),
         createRule("Web App Optimization", "web-app-optimization-cursorrules-prompt-file",
-          await getRuleMetadata("web-app-optimization-cursorrules-prompt-file"))
+          await getRuleMetadata("web-app-optimization-cursorrules-prompt-file")),
+        createRule("Convex", "convex-cursorrules-prompt-file",
+          await getRuleMetadata("convex-cursorrules-prompt-file"))
       ]
     }
   ];
